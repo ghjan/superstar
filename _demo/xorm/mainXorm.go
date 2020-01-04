@@ -8,16 +8,16 @@
 package main
 
 import (
-	"log"
 	"fmt"
+	"log"
 
-	"github.com/go-xorm/xorm"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-xorm/xorm"
 	"time"
 )
 
 const DriverName = "mysql"
-const MasterDataSourceName = "root:root@tcp(127.0.0.1:3306)/superstar?charset=utf8"
+const MasterDataSourceName = "imooc_user:123456@tcp(127.0.0.1:3306)/superstar?charset=utf8"
 
 /**
 CREATE TABLE `user_info` (
@@ -27,12 +27,12 @@ CREATE TABLE `user_info` (
   `sys_updated` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '最后修改时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
- */
- type UserInfo struct {
-	Id           int 	`xorm:"not null pk autoincr"`
-	Name         string
-	SysCreated   int
-	SysUpdated   int
+*/
+type UserInfo struct {
+	Id         int `xorm:"not null pk autoincr"`
+	Name       string
+	SysCreated int
+	SysUpdated int
 }
 
 var engine *xorm.Engine
@@ -42,14 +42,14 @@ func main() {
 
 	//execute()
 	//ormInsert()
-	//query()
-	//ormGet()
-	//ormGetCols()
-	//ormCount()
+	query()
+	ormGet()
+	ormGetCols()
+	ormCount()
 	ormFindRows()
-	//ormUpdate()
-	//ormOmitUpdate()
-	//ormMustColsUpdate()
+	ormUpdate()
+	ormOmitUpdate()
+	ormMustColsUpdate()
 
 }
 
@@ -101,10 +101,10 @@ func execute() {
 // 根据models的结构映射数据表
 func ormInsert() {
 	UserInfo := &UserInfo{
-		Id:           0,
-		Name:         "梅西",
-		SysCreated:   0,
-		SysUpdated:   0,
+		Id:         0,
+		Name:       "梅西",
+		SysCreated: 0,
+		SysUpdated: 0,
 	}
 	id, err := engine.Insert(UserInfo)
 	if err != nil {
@@ -117,7 +117,7 @@ func ormInsert() {
 
 // 根据models的结构读取数据
 func ormGet() {
-	UserInfo := &UserInfo{Id:2}
+	UserInfo := &UserInfo{Id: 2}
 	ok, err := engine.Get(UserInfo)
 	if ok {
 		fmt.Printf("%v\n", *UserInfo)
@@ -130,7 +130,7 @@ func ormGet() {
 
 // 获取指定的字段
 func ormGetCols() {
-	UserInfo := &UserInfo{Id:2}
+	UserInfo := &UserInfo{Id: 2}
 	ok, err := engine.Cols("name").Get(UserInfo)
 	if ok {
 		fmt.Printf("%v\n", UserInfo)
@@ -145,7 +145,7 @@ func ormGetCols() {
 func ormCount() {
 	//count, err := engine.Count(&UserInfo{})
 	//count, err := engine.Where("name_zh=?", "梅西").Count(&UserInfo{})
-	count, err := engine.Count(&UserInfo{Name:"梅西"})
+	count, err := engine.Count(&UserInfo{Name: "梅西"})
 	if err == nil {
 		fmt.Printf("count=%v\n", count)
 	} else {
@@ -179,53 +179,53 @@ func ormUpdate() {
 	//UserInfo := &UserInfo{NameZh:"测试名"}
 	//ok, err := engine.Update(UserInfo)
 	// 指定ID更新
-	UserInfo := &UserInfo{Name:"梅西"}
+	UserInfo := &UserInfo{Name: "梅西2"}
 	ok, err := engine.ID(2).Update(UserInfo)
 	fmt.Println(ok, err)
 }
 
 // 排除某字段
 func ormOmitUpdate() {
-	info := &UserInfo{Id:1}
+	info := &UserInfo{Id: 1}
 	ok, _ := engine.Get(info)
 	if ok {
 		if info.SysCreated > 0 {
 			ok, _ := engine.ID(info.Id).Omit("sys_created").
-				Update(&UserInfo{SysCreated:0,
-				SysUpdated:int(time.Now().Unix())})
-			fmt.Printf("ormOmitUpdate, rows=%d, " +
-				"sys_created=%d\n", ok, 0)
+				Update(&UserInfo{SysCreated: 0,
+					SysUpdated: int(time.Now().Unix())})
+			fmt.Printf("ormOmitUpdate, rows=%d, "+
+				"sys_created=%d,info.SysCreated:%d\n", ok, 0, info.SysCreated)
 		} else {
 			ok, _ := engine.ID(info.Id).Omit("sys_created").
-				Update(&UserInfo{SysCreated:1,
-				SysUpdated:int(time.Now().Unix())})
-			fmt.Printf("ormOmitUpdate, rows=%d, " +
-				"sys_created=%d\n", ok, 0)
+				Update(&UserInfo{SysCreated: 1,
+					SysUpdated: int(time.Now().Unix())})
+			fmt.Printf("ormOmitUpdate, rows=%d, "+
+				"sys_created=%d,info.SysCreated:%d\n", ok, 0, info.SysCreated)
 		}
 	}
 }
 
 // 字段为空也可以更新（0, 空字符串等）
 func ormMustColsUpdate() {
-	info := &UserInfo{Id:1}
+	info := &UserInfo{Id: 1}
 	ok, _ := engine.Get(info)
 	if ok {
 		if info.SysCreated > 0 {
 			ok, _ := engine.ID(info.Id).
 				MustCols("sys_created").
-				Update(&UserInfo{SysCreated:0,
-				SysUpdated:int(time.Now().Unix())})
-			fmt.Printf("ormMustColsUpdate, rows=%d, " +
+				Update(&UserInfo{SysCreated: 0,
+					SysUpdated: int(time.Now().Unix())})
+			fmt.Printf("ormMustColsUpdate, rows=%d, "+
 				"sys_created=%d\n",
 				ok, 0)
 		} else {
 			ok, _ := engine.ID(info.Id).
 				MustCols("sys_created").
-				Update(&UserInfo{SysCreated:1,
-				SysUpdated:int(time.Now().Unix())})
-			fmt.Printf("ormMustColsUpdate, rows=%d, " +
+				Update(&UserInfo{SysCreated: 1,
+					SysUpdated: int(time.Now().Unix())})
+			fmt.Printf("ormMustColsUpdate, rows=%d, "+
 				"sys_created=%d\n",
-				ok, 0)
+				ok, 1)
 		}
 	}
 }
